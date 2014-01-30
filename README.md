@@ -1,12 +1,7 @@
-Python biomart API
-==================
+Biomart 0.1.0
+=============
 
-Python package that helps to run queries against a biomart instance.
-
-Warning:
---------
-* 30/01/2014:
-** This package is still under development: some expected/obvious features are not implemented yet.
+Python API that consumes the biomart webservice.
 
 What it will do:
 ----------------
@@ -16,7 +11,6 @@ What it will do:
 * Show attributes and filters of a biomart dataset
 * Run your query formatted as a Python dict.
 
-
 What it won't do:
 -----------------
 
@@ -25,12 +19,11 @@ What it won't do:
 Setup
 -----
 
-Install requirements
-<pre>pip install -r requirements.txt</pre>
+Install from PyPi
+<pre>pip install biomart</pre>
 
-TODO:
+Install from source
 <pre>
-cd biomart
 python setup.py build
 python setup.py install
 </pre>
@@ -41,8 +34,14 @@ Usage
 Select a dataset
 <pre>
 from biomart import BiomartDataset
-  
+
 interpro = BiomartDataset( "http://www.biomart.org/biomart", {'name': 'entry'} )
+</pre>
+
+Use proxy
+<pre>
+import os
+interpro.http_proxy = os.environ.get('http_proxy', 'http://my_http_proxy.org')
 </pre>
 
 Run query: <i>Give me the name and abstract of interpro entry IPR027603</i>
