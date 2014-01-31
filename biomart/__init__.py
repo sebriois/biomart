@@ -148,7 +148,7 @@ class BiomartDataset(BiomartServer):
     def count( self, params ):
         return self.search( params, count = True )
     
-    def search( self, params, count = False ):
+    def search( self, params = {}, count = False ):
         self.assert_alive()
         self.get_configuration()
         
@@ -161,7 +161,10 @@ class BiomartDataset(BiomartServer):
         if count:
             root.set('count', '1')
         
-        self.to_xml( root, filters = params['filters'], attributes = params['attributes'], count = count )
+        filters    = params.get( 'filters', {} )
+        attributes = params.get( 'attributes', [] )
+        
+        self.to_xml( root, filters, attributes, count )
         return requests.get( self.url, params = { 'query': tostring( root ) }, proxies = self._proxies )
     
     def to_xml( self, root_element, filters = {}, attributes = [], count = False ):
@@ -216,6 +219,9 @@ class BiomartDataset(BiomartServer):
                     if attribute.default:
                         attribute_elem = SubElement( dataset, "Attribute" )
                         attribute_elem.set( 'name', attribute.name )
+            
+            if not attributes:
+                raise BiomartException('No attributes selected, please select at least one')
     
 class BiomartAttribute(object):
     def __init__(self, params):
@@ -225,6 +231,8 @@ class BiomartAttribute(object):
         self.hidden = ('hidden' in params and params['hidden'] == 'true')
     
     def __repr__(self):
+        if self.default:
+            return "%s (default)" % self.displayName
         return self.displayName
     
 class BiomartFilter(object):

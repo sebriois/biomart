@@ -15,40 +15,36 @@ What it will do:
 What it won't do:
 -----------------
 
-* Process and return the results as JSON,XML,etc. It will only return CSV or TSV format
-
-Setup
------
-
-<pre>
-cd Biomart
-python setup.py build
-python setup.py install
-</pre>
+* Process and return the results as JSON,XML,etc. It will only return the Biomart response as TSV format.
 
 Usage
 -----
 
 Select a dataset
-<pre>
-from biomart import BiomartDataset
+::
   
-interpro = BiomartDataset( "http://www.biomart.org/biomart", {'name': 'entry'} )
-</pre>
+  from biomart import BiomartDataset
+    
+  interpro = BiomartDataset( "http://www.biomart.org/biomart", {'name': 'entry'} )
 
-Run query: <i>Give me the name and abstract of interpro entry IPR027603</i>
-<pre>
-response = interpro.search({
-  'filters': {
-    'entry_id': 'IPR027603',
-  },
-  'attributes': [
-    'entry_name', 'abstract'
-  ]
-})
+Use proxy
+::
   
-# Returned format is TSV
-for line in response.iter_lines():
-  print line.split("\t")
+  import os
+  interpro.http_proxy = os.environ.get('http_proxy', 'http://my_http_proxy.org')
+
+Run query: *Give me the name and abstract of interpro entry IPR027603*
+::
   
-</pre>
+  response = interpro.search({
+    'filters': {
+        'entry_id': 'IPR027603',
+    },
+    'attributes': [
+        'entry_name', 'abstract'
+    ]
+  })
+  
+  # Returned format is TSV
+  for line in response.iter_lines():
+    print line.split("\t")
