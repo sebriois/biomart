@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='biomart',
-    version='0.3.0',
+    version='0.4.0',
     author='Sebastien Briois',
     author_email='sebriois@gmail.com',
     packages=['biomart','biomart.test'],
@@ -12,4 +12,13 @@ setup(
     long_description=open('README.txt').read(),
     install_requires=[ "requests>=2.2" ],
     test_suite = 'biomart.test.suite',
+    classifiers=[
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+    ],
 )

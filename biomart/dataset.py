@@ -132,4 +132,4 @@ class BiomartDataset(biomart.BiomartServer):
                 attribute_elem = SubElement( dataset, "Attribute" )
                 attribute_elem.set( 'name', str(attribute_name) )
         
-        return requests.get( self.url, params = { 'query': tostring( root ) }, proxies = self.proxies )
+        return requests.get( self.url, params = { 'query': tostring( root ) }, proxies = self.proxies, stream = True )
