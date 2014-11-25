@@ -1,14 +1,15 @@
-import unittest
-import biomart
 import os
+import unittest
+
+import biomart
+from biomart.lib import PUBLIC_BIOMART_URL
 
 class BiomartDatabaseTestCase(unittest.TestCase):
     def setUp(self):
-        self.database = biomart.BiomartDatabase( url = biomart.TEST_URL, params = { 'name': 'unimart' })
-        self.database.http_proxy = os.environ.get('http_proxy', None)
-        
+        self.database = biomart.BiomartDatabase( url = PUBLIC_BIOMART_URL, name = 'unimart' )
+    
     def testCanConnectToDatabase(self):
-        self.assertTrue( self.database.is_alive() )
+        self.assertTrue( self.database.is_alive )
     
     def testCanFetchDatasets(self):
         self.database.fetch_datasets()
@@ -16,7 +17,7 @@ class BiomartDatabaseTestCase(unittest.TestCase):
     
     def testCanSelectDataset(self):
         uniprot = self.database.datasets['uniprot']
-        self.assertTrue( uniprot.is_alive() )
+        self.assertTrue( uniprot.is_alive )
     
 
 def suite():

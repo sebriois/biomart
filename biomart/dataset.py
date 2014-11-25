@@ -1,24 +1,25 @@
-import requests
 from xml.etree.ElementTree import ElementTree, Element, SubElement, tostring, fromstring
-
+import pprint
 import biomart
 
 class BiomartDataset(biomart.BiomartServer):
-    def __init__(self, url, params, *args, **kwargs):
-        super(BiomartDataset, self).__init__(url, *args, **kwargs)
+    def __init__(self, url, *args, **kwargs):
+        super( BiomartDataset, self ).__init__( url, *args, **kwargs )
+
+        if not 'name' in kwargs:
+            raise biomart.BiomartException("[BiomartDataset] expecting (not empty) 'name' argument")
+
+        self.add_property( 'name', kwargs['name'] )
+        self.add_property( 'displayName', kwargs.get('displayName', None) )
+        self.add_property( 'visible', (int(kwargs.get('visible', 0))) == 1 )
         
-        if not 'name' in params:
-            raise biomart.BiomartException( "'name' must be specified." )
-        
-        self.name = params['name']
-        
-        self.displayName = params.get('displayName', None)
-        self.visible     = (params.get('visible', 0) == 1)
-        self._filters    = {}
+        self._filters = {}
         self._attributes = {}
-    
+
     def __repr__(self):
-        return self.name
+        if self.displayName:
+            return unicode(self.displayName)
+        return unicode( self.name )
     
     @property
     def attributes(self):
@@ -35,17 +36,17 @@ class BiomartDataset(biomart.BiomartServer):
     def show_filters(self):
         if not self._filters:
             self.fetch_configuration()
-        return self._filters.keys()
+        pprint.pprint(self._filters.keys())
     
     def show_attributes(self):
         if not self._attributes:
             self.fetch_configuration()
-        return self._attributes.keys()
+        pprint.pprint(self._attributes.keys())
     
     def fetch_configuration(self):
-        self.assert_alive()
-        
-        r = requests.get( self.url, params = { 'type': 'configuration', 'dataset': self.name }, proxies = self.proxies )
+        if self.verbose: print "[BiomartDataset:'%s'] Fetching filters and attributes" % self.name
+
+        r = self.GET(type='configuration',dataset=self.name)
         xml = fromstring( r.text )
         
         # Filters
@@ -62,10 +63,12 @@ class BiomartDataset(biomart.BiomartServer):
         return self.search( params, count = True )
     
     def search( self, params = {}, header = 0, count = False ):
-        self.assert_alive()
-        
         if not self._filters or not self._attributes:
             self.fetch_configuration()
+
+        if self.verbose:
+            print "[BiomartDataset:'%s'] Searching using following params:" % self.name
+            pprint.pprint(params)
         
         root = Element( 'Query' )
         root.set('virtualSchemaName', 'default')
@@ -132,4 +135,4 @@ class BiomartDataset(biomart.BiomartServer):
                 attribute_elem = SubElement( dataset, "Attribute" )
                 attribute_elem.set( 'name', str(attribute_name) )
         
-        return requests.get( self.url, params = { 'query': tostring( root ) }, proxies = self.proxies, stream = True )
+        return self.GET(query=tostring( root ))

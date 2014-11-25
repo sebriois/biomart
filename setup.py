@@ -1,11 +1,11 @@
 from setuptools import setup
-
+from biomart.lib import VERSION
 setup(
     name='biomart',
-    version='0.4.1',
+    version=VERSION,
     author='Sebastien Briois',
     author_email='sebriois@gmail.com',
-    packages=['biomart','biomart.test'],
+    packages=['biomart','biomart.lib','biomart.test'],
     license='BSD',
     description='Python API that consumes the biomart webservice',
     long_description=open('README.txt').read(),

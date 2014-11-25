@@ -3,3 +3,4 @@ v0.2.0, 31/01/2014 -- search method now accepts empty params and takes default f
 v0.3.0, 05/02/2014 -- added tests and fixed some bugs
 v0.4.0, 27/02/2014 -- using requests' stream = True on GET method when retrieving response
 v0.4.1, 24/11/2014 -- fixed "KeyError: 'displayName' when calling BiomartDataset.search"
+v0.5.0, 25/11/2014 -- design change: not using params dict to initialize classes, using **kwargs instead

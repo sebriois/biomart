@@ -2,26 +2,18 @@ import unittest
 import biomart
 import os
 import requests
+from biomart.lib import PUBLIC_BIOMART_URL
 
 class BiomartDatasetTestCase(unittest.TestCase):
     def setUp(self):
-        self.dataset = biomart.BiomartDataset( url = biomart.TEST_URL, params = { 'name': 'uniprot' })
-        self.dataset.http_proxy = os.environ.get('http_proxy', None)
+        self.dataset = biomart.BiomartDataset( url = PUBLIC_BIOMART_URL, name = 'uniprot' )
     
     def testCanConnectToDataset(self):
-        self.assertTrue( self.dataset.is_alive() )
+        self.assertTrue( self.dataset.is_alive )
     
     def testCanFetchConfiguration(self):
         self.dataset.fetch_configuration()
         self.assertTrue( len(self.dataset.filters.keys()) > 0 and len(self.dataset.attributes.keys()) > 0 )
-    
-    def testCanShowFilters(self):
-        filters = self.dataset.show_filters()
-        self.assertTrue( len(filters) > 0 )
-    
-    def testCanShowAttributes(self):
-        attributes = self.dataset.show_attributes()
-        self.assertTrue( len(attributes) > 0 )
     
     def testCanSearchWithDefaultAttributes(self):
         response = self.dataset.search({
