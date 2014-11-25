@@ -1,8 +1,8 @@
 from setuptools import setup
-from biomart.lib import VERSION
+
 setup(
     name='biomart',
-    version=VERSION,
+    version='0.5.0',
     author='Sebastien Briois',
     author_email='sebriois@gmail.com',
     packages=['biomart','biomart.lib','biomart.test'],

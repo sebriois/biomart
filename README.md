@@ -1,4 +1,4 @@
-Biomart 0.4.0
+Biomart 0.5.0
 =============
 
 Python API that consumes the biomart webservice.
@@ -9,12 +9,12 @@ What it will do:
 * Show all databases of a biomart server
 * Show all datasets of a biomart database
 * Show attributes and filters of a biomart dataset
-* Run your query formatted as a Python dict.
+* Run your query formatted as a Python dict and return the Biomart response as TSV format.
 
 What it won't do:
 -----------------
 
-* Process and return the results as JSON,XML,etc. It will only return the Biomart response as TSV format.
+* Process and return the results as JSON,XML,etc.
 
 Usage
 -----
