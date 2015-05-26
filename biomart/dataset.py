@@ -88,6 +88,11 @@ class BiomartDataset(biomart.BiomartServer):
         
         # Add filters to XML
         if filters:
+            try:
+                filters.items()
+            except AttributeError:
+                msg = "The parameters should be a dictionary"
+                raise biomart.BiomartException(msg)
             for name, value in filters.items():
                 try:
                     filter = self.filters[name]
