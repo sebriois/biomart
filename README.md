@@ -18,7 +18,16 @@ What it won't do:
 
 Usage
 -----
-
+<pre>
+import biomart
+web = "http://www.biomart.org/biomart"
+name = 'hsapiens_gene_ensembl'
+server = biomart.BiomartServer(web)
+server.set_verbose(True)
+server.show_databases()
+ensembl_ds = biomart.BiomartDataset(web, name=name)
+ensembl_ds.fetch_configuration()
+</pre>
 Import Biomart module
 <pre>
 from biomart import BiomartServer
