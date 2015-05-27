@@ -140,4 +140,4 @@ class BiomartDataset(biomart.BiomartServer):
                 attribute_elem = SubElement( dataset, "Attribute" )
                 attribute_elem.set( 'name', str(attribute_name) )
         
-        return self.GET(query=tostring( root ))
+        return self.GET(query=tostring( root )).rstrip()
