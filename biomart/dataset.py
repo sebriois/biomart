@@ -83,6 +83,7 @@ class BiomartDataset(biomart.BiomartServer):
         dataset.set( 'name', self.name )
         dataset.set( 'interface', 'default' )
         
+
         filters    = params.get( 'filters', {} )
         attributes = params.get( 'attributes', [] )
         
@@ -91,7 +92,7 @@ class BiomartDataset(biomart.BiomartServer):
             try:
                 filters.items()
             except AttributeError:
-                msg = "The parameters should be a dictionary"
+                msg = "The filters value should be a dictionary"
                 raise biomart.BiomartException(msg)
             for name, value in filters.items():
                 try:
@@ -126,7 +127,7 @@ class BiomartDataset(biomart.BiomartServer):
         
         # Add attributes to XML, unless "count"
         if not count:
-            if attributes:
+            if attributes and isinstance(attributes, list):
                 for attribute_name in attributes:
                     if not attribute_name in self.attributes.keys():
                         raise biomart.BiomartException( "The Attribute '%s' does not exist" % attribute_name )
