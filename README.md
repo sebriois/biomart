@@ -43,45 +43,47 @@ server.http_proxy = os.environ.get('http_proxy', 'http://my_http_proxy.org')
 
 Interact with the biomart server
 <pre>
+from biomart import BiomartServer
+
+server = BiomartServer("http://www.biomart.org/biomart")
 # show server databases
-print server.show_databases()
+#server.show_databases()
 
 # show server datasets
-print server.show_datasets()
+#server.show_datasets()
 
 # use the 'uniprot' dataset
 uniprot = server.datasets['uniprot']
-
+# show all available filters and attributes of the 'uniprot' dataset
+uniprot.show_filters()
+uniprot.show_attributes()
 # run a search with the default filters and attributes - equivalent to hitting "Results" on the web interface.
 # this will return a lot of data.
 response = uniprot.search()
-response = uniprot.search( header = 1 ) # if you need the columns header
-
+response = uniprot.search(header=1) # if you need the columns header
 # response format is TSV
-for line in response.iter_lines():
-  print line.split("\t")
 
+params = {}
 # run a count with the default filters and attributes - equivalent to hitting "Count" on the web interface
-response = uniprot.count()
-print response.text
+response = uniprot.count(params) #TODO: Fix this ;)
+print response.text.rstrip()
 
-# show all available filters and attributes of the 'uniprot' dataset
-print uniprot.show_filters()
-print uniprot.show_attributes()
 
 # run a search with custom filters and default attributes.
 response = uniprot.search({
   'filters': {
       'accession': 'Q9FMA1'
   }
-}, header = 1 )
-
+}, header=1)
+for line in response.iter_lines():
+    print line
 response = uniprot.search({
   'filters': {
       'accession': ['Q9FMA1', 'Q8LFJ9']  # ID-list specified accessions
   }
-}, header = 1 )
-
+}, header=1)
+for line in response.iter_lines():
+    print line
 # run a search with custom filters and attributes
 response = uniprot.search({
   'filters': {
@@ -91,16 +93,6 @@ response = uniprot.search({
       'accession', 'protein_name'
   ]
 })
-</pre>
-
-Shortcut function: connect directly to a biomart dataset
-<pre>
-from biomart import BiomartDataset
-
-interpro = BiomartDataset( "http://www.biomart.org/biomart", name = 'entry' )
-
-response = interpro.search({
-  'filters': { 'entry_id': 'IPR027603' },
-  'attributes': [ 'entry_name', 'abstract' ]
-})
+for line in response.iter_lines():
+    print line
 </pre>
