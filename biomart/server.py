@@ -56,7 +56,17 @@ class BiomartServer(Properties):
             self._datasets = {}
             self.fetch_datasets()
         return self._datasets
-    
+
+    @property
+    def virtual_schema(self):
+        if not hasattr(self, '_virtual_schema'):
+            r = self.GET( type = 'registry' )
+            xml = fromstring(r.text)
+            for child in xml.findall('MartURLLocation'):
+                self._virtual_schema = child.attrib['serverVirtualSchema']
+                break
+        return self._virtual_schema
+
     def fetch_databases(self):
         if self.verbose: print "[BiomartServer:'%s'] Fetching databases" % self.url
 
@@ -76,7 +86,7 @@ class BiomartServer(Properties):
                 displayName = child.attrib['displayName'],
                 visible     = child.attrib['visible'],
                 verbose     = self.verbose,
-                is_alive    = self.is_alive
+                is_alive    = self.is_alive,
             )
     
     def fetch_datasets(self):

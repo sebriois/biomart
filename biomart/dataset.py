@@ -7,12 +7,12 @@ class BiomartDataset(biomart.BiomartServer):
         super( BiomartDataset, self ).__init__( url, *args, **kwargs )
 
         if not 'name' in kwargs:
-            raise biomart.BiomartException("[BiomartDataset] expecting (not empty) 'name' argument")
+            raise biomart.BiomartException("[BiomartDataset] 'name' argument is required.")
 
         self.add_property( 'name', kwargs['name'] )
         self.add_property( 'displayName', kwargs.get('displayName', None) )
         self.add_property( 'visible', (int(kwargs.get('visible', 0))) == 1 )
-        
+
         self._filters = {}
         self._attributes = {}
 
@@ -55,9 +55,21 @@ class BiomartDataset(biomart.BiomartServer):
             self._filters[name] = biomart.BiomartFilter( filter_description.attrib )
         
         # Attributes
-        for attribute_description in xml.iter( 'AttributeDescription' ):
-            name = attribute_description.attrib['internalName']
-            self._attributes[name] = biomart.BiomartAttribute( attribute_description.attrib )
+        page_nb = 1
+        for attribute_page in xml.iter('AttributePage'):
+            is_hidden = attribute_page.attrib.get('hideDisplay', 'false') == 'true'
+            
+            for attribute_description in attribute_page.iter( 'AttributeDescription' ):
+                name = attribute_description.attrib['internalName']
+                # only attributes from the first visible page can be set as default
+                is_default = attribute_description.attrib.get('default', 'false') == 'true'
+                if is_default and (is_hidden or page_nb > 1):
+                    attribute_description.attrib['default'] = 'false'
+
+                self._attributes[name] = biomart.BiomartAttribute( attribute_description.attrib )
+
+            if not is_hidden:
+                page_nb += 1
     
     def count( self, params ):
         return self.search( params, count = True )
@@ -71,7 +83,7 @@ class BiomartDataset(biomart.BiomartServer):
             pprint.pprint(params)
         
         root = Element( 'Query' )
-        root.set('virtualSchemaName', 'default')
+        root.set('virtualSchemaName', self.virtual_schema)
         root.set('formatter', 'TSV')
         root.set('header', str(header))
         root.set('uniqueRows', '1')
@@ -134,5 +146,5 @@ class BiomartDataset(biomart.BiomartServer):
             for attribute_name in attributes:
                 attribute_elem = SubElement( dataset, "Attribute" )
                 attribute_elem.set( 'name', str(attribute_name) )
-        
+        print tostring( root )
         return self.GET(query=tostring( root ))
