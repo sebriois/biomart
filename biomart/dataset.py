@@ -7,7 +7,8 @@ class BiomartDataset(biomart.BiomartServer):
         super( BiomartDataset, self ).__init__( url, *args, **kwargs )
 
         if not 'name' in kwargs:
-            raise biomart.BiomartException("[BiomartDataset] expecting (not empty) 'name' argument")
+            msg = "[BiomartDataset] expecting (not empty) 'name' argument"
+            raise biomart.BiomartException(msg)
 
         self.add_property( 'name', kwargs['name'] )
         self.add_property( 'displayName', kwargs.get('displayName', None) )
@@ -44,7 +45,8 @@ class BiomartDataset(biomart.BiomartServer):
         pprint.pprint(self._attributes.keys())
     
     def fetch_configuration(self):
-        if self.verbose: print "[BiomartDataset:'%s'] Fetching filters and attributes" % self.name
+        if self.verbose: 
+            print "[BiomartDataset:'%s'] Fetching filters and attributes" % self.name
 
         r = self.GET(type='configuration',dataset=self.name)
         xml = fromstring( r.text )
