@@ -1,6 +1,5 @@
 import unittest
 import biomart
-import os
 import requests
 from biomart.lib import PUBLIC_BIOMART_URL
 

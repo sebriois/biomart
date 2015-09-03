@@ -1,6 +1,5 @@
 import unittest
 import biomart
-import os
 
 class BiomartServerTestCase(unittest.TestCase):
     def setUp(self):

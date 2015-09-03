@@ -1,4 +1,4 @@
-from xml.etree.ElementTree import ElementTree, Element, SubElement, tostring, fromstring
+from xml.etree.ElementTree import Element, SubElement, tostring, fromstring
 import pprint
 import biomart
 
@@ -96,14 +96,14 @@ class BiomartDataset(biomart.BiomartServer):
                 raise biomart.BiomartException(msg)
             for name, value in filters.items():
                 try:
-                    filter = self.filters[name]
+                    filter_ = self.filters[name]
                 except KeyError:
                     raise biomart.BiomartException( "The filter '%s' does not exist. Use one of: " % (name, ', '.join(self.attributes.keys())) )
                 
                 filter_elem = SubElement( dataset, "Filter" )
                 filter_elem.set( 'name', name )
                 
-                if filter.type == 'boolean':
+                if filter_.type == 'boolean':
                     if value == True or value.lower() == 'included' or value.lower() == 'only':
                         filter_elem.set( 'excluded', '0' )
                     elif value == False or value.lower() == 'excluded':
@@ -116,7 +116,7 @@ class BiomartDataset(biomart.BiomartServer):
                         value = ",".join( value )
                     filter_elem.set( 'value', value )
         else:
-            for filter in self.filters.values():
+            for filter_ in self.filters.values():
                 if filter.default and filter.default_value:
                     filter_elem = SubElement( dataset )
                     filter_elem.set( 'name', str(filter.name) )

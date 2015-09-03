@@ -1,9 +1,9 @@
 import test_server
 import test_database
 import test_dataset
+import unittest
 
 def suite():
-    import unittest
     import doctest
     suite = unittest.TestSuite()
     suite.addTests(test_server.suite())
