@@ -1,8 +1,10 @@
-from server import BiomartServer
+from attribute import BiomartAttribute
 from database import BiomartDatabase
 from dataset import BiomartDataset
 from filter import BiomartFilter
-from attribute import BiomartAttribute
+from server import BiomartServer
+
 
 class BiomartException(Exception):
+    """Parent exception of Biomart package"""
     pass

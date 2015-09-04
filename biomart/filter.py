@@ -13,4 +13,5 @@ class BiomartFilter(object):
         self.hidden = ('hidden' in params and params['hidden'] == 'true')
 
     def __repr__(self):
+        """Returns the name of the filter"""
         return self.name
