@@ -47,10 +47,9 @@ class BiomartDatabase(server.BiomartServer):
         if not hasattr(self, '_datasets'):
             self._datasets = {}
 
-        r = self.GET(type='datasets', mart=self.name)
+        r = self.get(type='datasets', mart=self.name)
 
         for line in r.iter_lines():
-            print line
             line = line.rstrip("\n").split("\t")
             if len(line) > 3:
                 name = line[1]

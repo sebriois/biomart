@@ -28,12 +28,17 @@ class BiomartServer(Properties):
         self._verbose = kwargs.get('verbose', False)
         self.assert_alive()
 
+    def __repr__(self):
+        """Set the name of the object"""
+        return "Connection to server %s" % self.url
+
     def get_verbose(self):
         """Return if verbose is set or not"""
         return self._verbose
 
     def set_verbose(self, value):
-        """"""
+        """Select if you want to run the program verbosely (True)
+         or not (False)."""
         if not isinstance(value, bool):
             raise biomart.BiomartException(
                 "verbose must be set to a boolean value")
@@ -51,11 +56,11 @@ class BiomartServer(Properties):
     def assert_alive(self):
         """Set the connection to the server alive"""
         if not self.is_alive:
-            self.GET()
+            self.get()
             self.is_alive = True
             if self.verbose:
                 print "[BiomartServer:'%s'] is alive." % self.url
-        else:
+        elif self.verbose:
             print "[BiomartServer:'%s'] is already alive." % self.url
 
     @property
@@ -76,7 +81,7 @@ class BiomartServer(Properties):
             self.fetch_datasets()
         return self._datasets
 
-    def fetch_databases(self):
+    def fetch_databases(self, database=None):
         """Fetch the name and description of the databases."""
         if self.verbose:
             print "[BiomartServer:'%s'] Fetching databases" % self.url
@@ -84,35 +89,71 @@ class BiomartServer(Properties):
         if not hasattr(self, '_databases'):
             self._databases = {}
 
-        r = self.GET(type='registry')
+        r = self.get(type='registry')
         xml = fromstring(r.text)
         for child in xml.findall('MartURLLocation'):
             name = child.attrib['name']
-
-            self._databases[name] = biomart.BiomartDatabase(
-                url=self.url,
-                http_proxy=self.http_proxy,
-                https_proxy=self.https_proxy,
-                name=name,
-                displayName=child.attrib['displayName'],
-                visible=child.attrib['visible'],
-                verbose=self.verbose,
-                is_alive=self.is_alive
-            )
+            if database != None:
+                if name == database or database == child.attrib['displayName']:
+                    self._databases[name] = biomart.BiomartDatabase(
+                        url=self.url,
+                        http_proxy=self.http_proxy,
+                        https_proxy=self.https_proxy,
+                        name=name,
+                        displayName=child.attrib['displayName'],
+                        visible=child.attrib['visible'],
+                        verbose=self.verbose,
+                        is_alive=self.is_alive
+                    )
+                    break
+            else:
+                self._databases[name] = biomart.BiomartDatabase(
+                    url=self.url,
+                    http_proxy=self.http_proxy,
+                    https_proxy=self.https_proxy,
+                    name=name,
+                    displayName=child.attrib['displayName'],
+                    visible=child.attrib['visible'],
+                    verbose=self.verbose,
+                    is_alive=self.is_alive
+                )
         if self.verbose:
             print "[BiomartServer:'%s'] Successfully fetch databases" % self.url
 
-    def fetch_datasets(self):
-        """Fetch datasets of the databases"""
-        # TODO: Add the possibility to obtain the datasets of a single database
+    def fetch_datasets(self, database=None):
+        """Fetch datasets of the databases if a database is selected it fetch 
+        only datasets of such database.
+        Example:
+        import biomart
+        >>>server = biomart.BiomartServer()
+        >>>server.databases
+        {'Breast_mart_69': BCCTB Bioinformatics Portal (UK and Ireland),
+         'ENSEMBL_MART_ONTOLOGY': Ontology,...}
+        >>>server.fetch_datasets("Breast_mart_69")
+        >>>len(server.datasets)
+        2
+        >>>server.datasets
+        {'breastCancer_expressionStudy': Studies,
+         'hsapiens_gene_breastCancer': Omics}
+        >>>server.fetch_datasets()
+        >>>len(server.datsets)
+        817
+        """
+
         if self.verbose:
             print "[BiomartServer:'%s'] Fetching datasets" % self.url
 
         if not hasattr(self, '_datasets'):
             self._datasets = {}
-
-        for database in self.databases.values():
-            self._datasets.update(database.datasets)
+        for database_ in self.databases.values():
+            # TODO: Include from which database_ is comming each dataset
+            # If a database is provided fetch only datasets from these datset
+            if database != None:
+                if database_.name == database or database_.displayName == database:
+                    self._datasets.update(database_.datasets)
+                    break
+            else:
+                self._datasets.update(database_.datasets)
 
         if self.verbose:
             print "[BiomartServer:'%s'] Successfully fetch datasets" % self.url
@@ -122,12 +163,7 @@ class BiomartServer(Properties):
         pprint.pprint(self.databases)
 
     def show_datasets(self):
-        """Prints a table with information about each dataset. The information is:
-        Type of data, ¿name of the dataset?, ¿description of the dataset?, ¿?, 
-        ¿version?, columns?, rows?, permision, datestamp
-        Example:
-        TableSet    pinfestans_eg_snp    Phytophthora infestans variations 
-        (ASM14294v1)    1    ASM14294v1    200    50000    default    2014-12-18 15:44:39"""
+        """Pretty print of the dictionary with known datasets"""
         pprint.pprint(self.datasets)
 
     def get(self, **params):

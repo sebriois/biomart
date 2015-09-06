@@ -2,10 +2,11 @@ import biomart
 import pprint
 from xml.etree.ElementTree import Element, SubElement, tostring, fromstring
 
+import database
 import server
 
 
-class BiomartDataset(server.BiomartServer):
+class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
     """Object to handle dataset of a Biomart Server"""
 
     def __init__(self, url, *args, **kwargs):
@@ -21,8 +22,8 @@ class BiomartDataset(server.BiomartServer):
         self.add_property('displayName', kwargs.get('displayName', None))
         self.add_property('visible', (int(kwargs.get('visible', 0))) == 1)
 
-        self._filters = {}
-        self._attributes = {}
+        self._filters = []
+        self._attributes = []
 
     def __repr__(self):
         """Set the value to reproduce when printing the object"""
@@ -48,33 +49,33 @@ class BiomartDataset(server.BiomartServer):
         """Prints pretty the filters it has"""
         if not self._filters:
             self.fetch_configuration()
-        pprint.pprint(self._filters.keys())
+        pprint.pprint(self._filters)
 
     def show_attributes(self):
         """Prints pretty the attributes it has"""
         if not self._attributes:
             self.fetch_configuration()
-        pprint.pprint(self._attributes.keys())
+        pprint.pprint(self._attributes)
 
     def fetch_configuration(self):
         """Fetch the configuration of the dataset of its name"""
         if self.verbose:
             print "[BiomartDataset:'%s'] Fetching filters and attributes" % self.name
 
-        r = self.GET(type='configuration', dataset=self.name)
+        r = self.get(type='configuration', dataset=self.name)
         xml = fromstring(r.text)
 
         # Fetch filters options
         for filter_description in xml.iter('FilterDescription'):
-            name = filter_description.attrib['internalName']
-            self._filters[name] = biomart.BiomartFilter(
-                filter_description.attrib)
+            #             name = filter_description.attrib['internalName']
+            self._filters.append(biomart.BiomartFilter(
+                filter_description.attrib))
 
         # Fetch attributes options
         for attribute_description in xml.iter('AttributeDescription'):
-            name = attribute_description.attrib['internalName']
-            self._attributes[name] = biomart.BiomartAttribute(
-                attribute_description.attrib)
+            #             name = attribute_description.attrib['internalName']
+            self._attributes.append(biomart.BiomartAttribute(
+                attribute_description.attrib))
         if self.verbose:
             print "[BiomartDataset:'%s'] Configuration fetch correctly" % self.name
 
@@ -169,4 +170,4 @@ class BiomartDataset(server.BiomartServer):
                 attribute_elem = SubElement(dataset, "Attribute")
                 attribute_elem.set('name', str(attribute_name))
 
-        return self.GET(query=tostring(root)).rstrip()
+        return self.get(query=tostring(root)).rstrip()

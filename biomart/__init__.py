@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from attribute import BiomartAttribute
 from database import BiomartDatabase
 from dataset import BiomartDataset
