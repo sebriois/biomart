@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import biomart
 import os
 import pprint
@@ -146,7 +145,6 @@ class BiomartServer(Properties):
         if not hasattr(self, '_datasets'):
             self._datasets = {}
         for database_ in self.databases.values():
-            # TODO: Include from which database_ is comming each dataset
             # If a database is provided fetch only datasets from these datset
             if database != None:
                 if database_.name == database or database_.displayName == database:

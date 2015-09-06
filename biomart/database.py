@@ -19,7 +19,6 @@ class BiomartDatabase(server.BiomartServer):
         self.add_property('name', kwargs['name'])
         self.add_property('displayName', kwargs.get('displayName', None))
         self.add_property('visible', (int(kwargs.get('visible', 0))) == 1)
-
         self._datasets = {}
 
     def __repr__(self):
@@ -61,5 +60,6 @@ class BiomartDatabase(server.BiomartServer):
                     displayName=line[2],
                     visible=int(line[3]),
                     verbose=self.verbose,
-                    is_alive=self.is_alive
+                    is_alive=self.is_alive,
+                    database=self.name
                 )

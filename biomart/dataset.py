@@ -21,7 +21,7 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
         self.add_property('name', kwargs['name'])
         self.add_property('displayName', kwargs.get('displayName', None))
         self.add_property('visible', (int(kwargs.get('visible', 0))) == 1)
-
+        self.database = kwargs["database"]
         self._filters = []
         self._attributes = []
 
