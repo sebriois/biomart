@@ -1,5 +1,5 @@
 PUBLIC_BIOMART_URL="http://www.biomart.org/biomart"
-VERSION ="0.6.0"
+VERSION ="0.7.0"
 
 class Properties(object):
     def add_property(self, name, value):
