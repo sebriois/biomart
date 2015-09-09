@@ -18,8 +18,8 @@ class BiomartDataset(biomart.BiomartServer):
 
     def __repr__(self):
         if self.displayName:
-            return unicode(self.displayName)
-        return unicode( self.name )
+            return self.displayName
+        return self.name
     
     @property
     def attributes(self):
@@ -44,7 +44,7 @@ class BiomartDataset(biomart.BiomartServer):
         pprint.pprint(self._attributes.keys())
     
     def fetch_configuration(self):
-        if self.verbose: print "[BiomartDataset:'%s'] Fetching filters and attributes" % self.name
+        if self.verbose: print("[BiomartDataset:'%s'] Fetching filters and attributes" % self.name)
 
         r = self.GET(type='configuration',dataset=self.name)
         xml = fromstring( r.text )
@@ -79,7 +79,7 @@ class BiomartDataset(biomart.BiomartServer):
             self.fetch_configuration()
 
         if self.verbose:
-            print "[BiomartDataset:'%s'] Searching using following params:" % self.name
+            print("[BiomartDataset:'%s'] Searching using following params:" % self.name)
             pprint.pprint(params)
         
         root = Element( 'Query' )
@@ -146,5 +146,5 @@ class BiomartDataset(biomart.BiomartServer):
             for attribute_name in attributes:
                 attribute_elem = SubElement( dataset, "Attribute" )
                 attribute_elem.set( 'name', str(attribute_name) )
-        print tostring( root )
+
         return self.GET(query=tostring( root ))

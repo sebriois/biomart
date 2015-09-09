@@ -16,8 +16,8 @@ class BiomartDatabase(biomart.BiomartServer):
     
     def __repr__(self):
         if self.displayName:
-            return unicode(self.displayName)
-        return unicode( self.name )
+            return self.displayName
+        return  self.name
     
     @property
     def datasets(self):
@@ -29,7 +29,7 @@ class BiomartDatabase(biomart.BiomartServer):
         pprint.pprint( self.datasets )
 
     def fetch_datasets(self):
-        if self.verbose: print "[BiomartDatabase:'%s'] Fetching datasets" % self.name
+        if self.verbose: print("[BiomartDatabase:'%s'] Fetching datasets" % self.name)
         
         if not hasattr(self, '_datasets'):
             self._datasets = {}
@@ -37,7 +37,7 @@ class BiomartDatabase(biomart.BiomartServer):
         r = self.GET( type = 'datasets', mart = self.name )
 
         for line in r.iter_lines():
-            line = line.rstrip("\n").split("\t")
+            line = line.split("\t")
             if len(line) > 3:
                 name = line[1]
                 self._datasets[name] = biomart.BiomartDataset(

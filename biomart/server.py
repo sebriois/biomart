@@ -41,7 +41,7 @@ class BiomartServer(Properties):
         if not self.is_alive:
             self.GET()
             self.is_alive = True
-            if self.verbose: print "[BiomartServer:'%s'] is alive." % self.url
+            if self.verbose: print("[BiomartServer:'%s'] is alive." % self.url)
     
     @property
     def databases(self):
@@ -68,7 +68,7 @@ class BiomartServer(Properties):
         return self._virtual_schema
 
     def fetch_databases(self):
-        if self.verbose: print "[BiomartServer:'%s'] Fetching databases" % self.url
+        if self.verbose: print("[BiomartServer:'%s'] Fetching databases" % self.url)
 
         if not hasattr(self, '_databases'):
             self._databases = {}
@@ -90,7 +90,7 @@ class BiomartServer(Properties):
             )
     
     def fetch_datasets(self):
-        if self.verbose: print "[BiomartServer:'%s'] Fetching datasets" % self.url
+        if self.verbose: print("[BiomartServer:'%s'] Fetching datasets" % self.url)
 
         if not hasattr(self, '_datasets'):
             self._datasets = {}
