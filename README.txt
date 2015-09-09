@@ -1,5 +1,5 @@
 =============
-Biomart 0.7.0
+Biomart 0.7.1
 =============
 
 Python API that consumes the biomart webservice.
@@ -56,15 +56,15 @@ Interact with the biomart server
   
   # response format is TSV
   for line in response.iter_lines():
-    print line.split("\t")
+    print(line.split("\t"))
   
   # run a count with the default filters and attributes - equivalent to hitting "Count" on the web interface
   response = uniprot.count()
-  print response.text
+  print(response.text)
   
   # show all available filters and attributes of the 'uniprot' dataset
-  print uniprot.show_filters()
-  print uniprot.show_attributes()
+  uniprot.show_filters()  # uses pprint
+  uniprot.show_attributes()  # uses pprint
   
   # run a search with custom filters and default attributes.
   response = uniprot.search({
@@ -91,6 +91,7 @@ Interact with the biomart server
 
 
 Shortcut function: connect directly to a biomart dataset
+*This is short in code but it might be long in time since the module needs to fetch all server's databases to find your dataset.*
 ::
   
   from biomart import BiomartDataset

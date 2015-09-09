@@ -5,7 +5,7 @@ from xml.etree.ElementTree import fromstring
 import requests
 
 import biomart
-from lib import Properties, PUBLIC_BIOMART_URL
+from .lib import Properties, PUBLIC_BIOMART_URL
 
 class BiomartServer(Properties):
     def __init__(self, url = PUBLIC_BIOMART_URL, *args, **kwargs):

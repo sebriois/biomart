@@ -1,4 +1,4 @@
-Biomart 0.7.0
+Biomart 0.7.1
 =============
 
 Python API that consumes the biomart webservice.
@@ -35,10 +35,10 @@ server.http_proxy = os.environ.get('http_proxy', 'http://my_http_proxy.org')
 Interact with the biomart server
 <pre>
 # show server databases
-print server.show_databases()
+server.show_databases()
 
 # show server datasets
-print server.show_datasets()
+server.show_datasets()
 
 # use the 'uniprot' dataset
 uniprot = server.datasets['uniprot']
@@ -50,15 +50,15 @@ response = uniprot.search( header = 1 ) # if you need the columns header
 
 # response format is TSV
 for line in response.iter_lines():
-  print line.split("\t")
+  print(line.split("\t"))
 
 # run a count with the default filters and attributes - equivalent to hitting "Count" on the web interface
 response = uniprot.count()
-print response.text
+print(response.text)
 
 # show all available filters and attributes of the 'uniprot' dataset
-print uniprot.show_filters()
-print uniprot.show_attributes()
+uniprot.show_filters()
+uniprot.show_attributes()
 
 # run a search with custom filters and default attributes.
 response = uniprot.search({
@@ -84,7 +84,8 @@ response = uniprot.search({
 })
 </pre>
 
-Shortcut function: connect directly to a biomart dataset
+Shortcut function: connect directly to a biomart dataset.
+*This is short in code but it might be long in time since the module needs to fetch all server's databases to find your dataset.*
 <pre>
 from biomart import BiomartDataset
 
@@ -95,3 +96,5 @@ response = interpro.search({
   'attributes': [ 'entry_name', 'abstract' ]
 })
 </pre>
+Please be aware the module needs to go through all server's databases to find the dataset you're requesting. 
+If you know the database name, it's usually much faster to connect to a database first, then request one of its dataset.
