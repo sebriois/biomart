@@ -50,6 +50,7 @@ response = uniprot.search( header = 1 ) # if you need the columns header
 
 # response format is TSV
 for line in response.iter_lines():
+  line = line.decode('utf-8')
   print(line.split("\t"))
 
 # run a count with the default filters and attributes - equivalent to hitting "Count" on the web interface
@@ -96,5 +97,4 @@ response = interpro.search({
   'attributes': [ 'entry_name', 'abstract' ]
 })
 </pre>
-Please be aware the module needs to go through all server's databases to find the dataset you're requesting. 
-If you know the database name, it's usually much faster to connect to a database first, then request one of its dataset.
+If you know the database name, it's usually much faster to connect to the database first, then request one of its dataset.

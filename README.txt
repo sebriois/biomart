@@ -56,6 +56,7 @@ Interact with the biomart server
   
   # response format is TSV
   for line in response.iter_lines():
+    line = line.decode('utf-8')
     print(line.split("\t"))
   
   # run a count with the default filters and attributes - equivalent to hitting "Count" on the web interface

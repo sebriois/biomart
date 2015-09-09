@@ -37,16 +37,17 @@ class BiomartDatabase(biomart.BiomartServer):
         r = self.GET( type = 'datasets', mart = self.name )
 
         for line in r.iter_lines():
-            line = line.split("\t")
-            if len(line) > 3:
-                name = line[1]
+            line = line.decode('utf-8')
+            cols = line.split("\t")
+            if len(cols) > 3:
+                name = cols[1]
                 self._datasets[name] = biomart.BiomartDataset(
                     url         = self.url,
                     http_proxy  = self.http_proxy,
                     https_proxy = self.https_proxy,
                     name        = name,
-                    displayName = line[2],
-                    visible     = int(line[3]),
+                    displayName = cols[2],
+                    visible     = int(cols[3]),
                     verbose     = self.verbose,
                     is_alive    = self.is_alive
                 )
