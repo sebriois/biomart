@@ -5,3 +5,4 @@ v0.4.0, 27/02/2014 -- using requests' stream = True on GET method when retrievin
 v0.4.1, 24/11/2014 -- fixed "KeyError: 'displayName' when calling BiomartDataset.search"
 v0.5.0, 25/11/2014 -- design change: not using params dict to initialize classes, using **kwargs instead
 v0.6.0, 04/06/2015 -- fixed issue with using the 'default' virtualSchemaName. Now fetching it from the registry. Using default attributes from the first visible attributes page to prevent a biomart exception from being raised (cannot use default attributes from multiple attribute pages).
+v0.7.0, 09/09/2015 -- should be usable under a python3 env
