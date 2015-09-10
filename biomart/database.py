@@ -19,6 +19,8 @@ class BiomartDatabase(server.BiomartServer):
         self.add_property('name', kwargs['name'])
         self.add_property('displayName', kwargs.get('displayName', None))
         self.add_property('visible', (int(kwargs.get('visible', 0))) == 1)
+        self.assert_alive = None
+        self.ndatasets = 0
         self._datasets = {}
 
     def __repr__(self):
@@ -41,7 +43,7 @@ class BiomartDatabase(server.BiomartServer):
     def fetch_datasets(self):
         """Fetch a dataset"""
         if self.verbose:
-            print "[BiomartDatabase:'%s'] Fetching datasets" % self.name
+            print "[BiomartDatabase:'%s'] Fetching database" % self.name
 
         if not hasattr(self, '_datasets'):
             self._datasets = {}
@@ -63,3 +65,5 @@ class BiomartDatabase(server.BiomartServer):
                     is_alive=self.is_alive,
                     database=self.name
                 )
+                # Adds the number of datasets of each database
+                self.ndatasets += 1

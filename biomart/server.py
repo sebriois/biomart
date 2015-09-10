@@ -63,12 +63,12 @@ class BiomartServer(Properties):
             print "[BiomartServer:'%s'] is already alive." % self.url
 
     @property
-    def databases(self):
+    def databases(self, database=None):
         """Return a dictionary with the available databases and a description
          of them."""
         if not hasattr(self, '_databases'):
             self._databases = {}
-            self.fetch_databases()
+            self.fetch_databases(database)
         return self._databases
 
     @property
@@ -145,7 +145,7 @@ class BiomartServer(Properties):
         if not hasattr(self, '_datasets'):
             self._datasets = {}
         for database_ in self.databases.values():
-            # If a database is provided fetch only datasets from these datset
+            # If a database is provided fetch only datasets from these dataset
             if database != None:
                 if database_.name == database or database_.displayName == database:
                     self._datasets.update(database_.datasets)

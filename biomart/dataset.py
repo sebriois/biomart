@@ -15,7 +15,7 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
         super(BiomartDataset, self).__init__(url, *args, **kwargs)
 
         if not 'name' in kwargs:
-            msg = "[BiomartDataset] expecting (not empty) 'name' argument"
+            msg = "[BiomartDataset] 'name' argument is required."
             raise biomart.BiomartException(msg)
 
         self.add_property('name', kwargs['name'])
@@ -24,6 +24,8 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
         self.database = kwargs["database"]
         self._filters = []
         self._attributes = []
+        if self.verbose:
+            print "[BiomartDataset '%s'] Fetch dataset of %s" % (self.name, self.database)
 
     def __repr__(self):
         """Set the value to reproduce when printing the object"""
@@ -81,7 +83,7 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
 
     def count(self, params={}):
         """Search but counting the number of results."""
-        return self.search(params, count=True)
+        return self.search(params, count=True).text.rstrip()
 
     def search(self, params={}, header=0, count=False):
         """Search using the parameters, and the options"""
@@ -118,11 +120,12 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
 
             for name, value in filters.items():
                 try:
-                    filter_ = self.filters[name]
-                except KeyError:
+                    filter_ = self.filters[self.filters.index(name)]
+                    print filter_, vars(filter_)
+                except ValueError:
                     msg = "The filter '%s' does not exist. Use one of: " % (
-                        name, ', '.join(self.attributes.keys()))
-                    raise biomart.BiomartException()
+                        name, ', '.join([n.name for n in self.attributes]))
+                    raise biomart.BiomartException(msg)
 
                 filter_elem = SubElement(dataset, "Filter")
                 filter_elem.set('name', name)
@@ -142,14 +145,15 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
                         value = ",".join(value)
                     filter_elem.set('value', value)
         else:
-            for filter_ in self.filters.values():
-                if filter.default and filter.default_value:
+            for filter_ in self.filters:
+                attr = vars(filter_)
+                if attr.get("default", False) and attr.get("default_value", True):
                     filter_elem = SubElement(dataset)
-                    filter_elem.set('name', str(filter.name))
-                    if filter.type == 'boolean':
-                        filter_elem.set('excluded', str(filter.default_value))
+                    filter_elem.set('name', str(filter_.name))
+                    if filter_.type == 'boolean':
+                        filter_elem.set('excluded', str(filter_.default_value))
                     else:
-                        filter_elem.set('value', str(filter.default_value))
+                        filter_elem.set('value', str(filter_.default_value))
 
         # Add attributes to XML, unless "count"
         if not count:
@@ -160,7 +164,7 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
                             "The Attribute '%s' does not exist" % attribute_name)
             else:
                 attributes = [
-                    attr.name for attr in self.attributes.values() if attr.default]
+                    attr.name for attr in self.attributes if vars(attr).get("default")]
 
             if not attributes:
                 raise biomart.BiomartException(
@@ -170,4 +174,5 @@ class BiomartDataset(database.BiomartDatabase):  # server.BiomartServer
                 attribute_elem = SubElement(dataset, "Attribute")
                 attribute_elem.set('name', str(attribute_name))
 
-        return self.get(query=tostring(root)).rstrip()
+        res = self.get(query=tostring(root))
+        return res
