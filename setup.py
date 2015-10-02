@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='biomart',
-    version='0.7.1',
+    version='0.8.0',
     url='https://github.com/sebriois/biomart',
     author='Sebastien Briois',
     author_email='sebriois@gmail.com',
@@ -19,7 +19,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
     ],
 )

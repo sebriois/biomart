@@ -1,23 +1,27 @@
-import pprint
 import biomart
 
-class BiomartDatabase(biomart.BiomartServer):
-    def __init__(self, url, *args, **kwargs):
-        super(BiomartDatabase, self).__init__(url, *args, **kwargs)
-        
-        if not 'name' in kwargs:
-            raise biomart.BiomartException("[BiomartDatabase] expecting (not empty) 'name' argument")
 
-        self.add_property( 'name', kwargs['name'] )
-        self.add_property( 'displayName', kwargs.get('displayName', None) )
-        self.add_property( 'visible', (int(kwargs.get('visible', 0))) == 1 )
+class BiomartDatabase(object):
+    def __init__(self, *args, **kwargs):
+        server = kwargs.get('server', None)
+        if not server:
+            url = args[0]
+            server = biomart.BiomartServer(url = url, **kwargs)
+
+        self.server = server
+
+        self.name = kwargs.get('name', None)
+        if not self.name:
+            raise biomart.BiomartException("[BiomartDatabase] 'name' is required")
+
+        self.display_name = kwargs.get('display_name', self.name)
+        self.virtual_schema = kwargs.get('virtual_schema', 'default')
+        self.verbose = kwargs.get('verbose', False)
 
         self._datasets = {}
     
     def __repr__(self):
-        if self.displayName:
-            return self.displayName
-        return  self.name
+        return self.display_name
     
     @property
     def datasets(self):
@@ -26,28 +30,25 @@ class BiomartDatabase(biomart.BiomartServer):
         return self._datasets
     
     def show_datasets(self):
-        pprint.pprint( self.datasets )
+        import pprint
+        pprint.pprint(self.datasets)
 
     def fetch_datasets(self):
-        if self.verbose: print("[BiomartDatabase:'%s'] Fetching datasets" % self.name)
-        
-        if not hasattr(self, '_datasets'):
-            self._datasets = {}
-        
-        r = self.GET( type = 'datasets', mart = self.name )
+        if self.verbose:
+            print("[BiomartDatabase:'%s'] Fetching datasets" % self)
 
+        r = self.server.get_request(type = 'datasets', mart = self.name)
         for line in r.iter_lines():
             line = line.decode('utf-8')
-            cols = line.split("\t")
-            if len(cols) > 3:
-                name = cols[1]
-                self._datasets[name] = biomart.BiomartDataset(
-                    url         = self.url,
-                    http_proxy  = self.http_proxy,
-                    https_proxy = self.https_proxy,
-                    name        = name,
-                    displayName = cols[2],
-                    visible     = int(cols[3]),
-                    verbose     = self.verbose,
-                    is_alive    = self.is_alive
-                )
+            if line:
+                cols = line.split("\t")
+                if len(cols) > 7:
+                    name = cols[1]
+                    self._datasets[name] = biomart.BiomartDataset(
+                        server = self.server,
+                        database = self,
+                        name = name,
+                        display_name = cols[2],
+                        interface = cols[7],
+                        verbose = self.verbose,
+                    )

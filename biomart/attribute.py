@@ -1,12 +1,9 @@
 class BiomartAttribute(object):
-    def __init__(self, params):
-        self.name = params['internalName']
-        self.displayName = ('displayName' in params and params['displayName'] == 'true')
-        self.default = ('default' in params and params['default'] == 'true')
-        self.hidden = ('hidden' in params and params['hidden'] == 'true')
-    
+    def __init__(self, name, display_name, attribute_page, is_default = False):
+        self.name = name
+        self.display_name = display_name
+        self.attribute_page = attribute_page
+        self.is_default = is_default
+
     def __repr__(self):
-        if self.default:
-            return "%s (default)" % self.displayName
-        return self.name
-    
+        return "'%s' (page: %s, default: %s)" % (self.display_name, self.attribute_page, self.is_default)

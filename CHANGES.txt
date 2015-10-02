@@ -7,3 +7,4 @@ v0.5.0, 25/11/2014 -- design change: not using params dict to initialize classes
 v0.6.0, 04/06/2015 -- fixed issue with using the 'default' virtualSchemaName. Now fetching it from the registry. Using default attributes from the first visible attributes page to prevent a biomart exception from being raised (cannot use default attributes from multiple attribute pages).
 v0.7.0, 09/09/2015 -- should be usable under a python3 env
 v0.7.1, 09/09/2015 -- fixed relative imports for python3
+v0.8.0, 01/10/2015 -- New design of classes, new way of fetching attributes and filters for datasets. Still need to figure out the actual need for virtualSchemaName, for now 'default' is used for all datasets.

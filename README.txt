@@ -1,5 +1,5 @@
 =============
-Biomart 0.7.1
+Biomart 0.8.0
 =============
 
 Python API that consumes the biomart webservice.
@@ -48,8 +48,16 @@ Interact with the biomart server
   
   # use the 'uniprot' dataset
   uniprot = server.datasets['uniprot']
-  
-  # run a search with the default filters and attributes - equivalent to hitting "Results" on the web interface.
+
+  # show all available filters and attributes of the 'uniprot' dataset
+  uniprot.show_filters()  # uses pprint
+  uniprot.show_attributes()  # uses pprint
+
+
+Run a search
+::
+
+  # run a search with the default attributes - equivalent to hitting "Results" on the web interface.
   # this will return a lot of data.
   response = uniprot.search()
   response = uniprot.search( header = 1 ) # if you need the columns header
@@ -59,14 +67,10 @@ Interact with the biomart server
     line = line.decode('utf-8')
     print(line.split("\t"))
   
-  # run a count with the default filters and attributes - equivalent to hitting "Count" on the web interface
+  # run a count - equivalent to hitting "Count" on the web interface
   response = uniprot.count()
   print(response.text)
-  
-  # show all available filters and attributes of the 'uniprot' dataset
-  uniprot.show_filters()  # uses pprint
-  uniprot.show_attributes()  # uses pprint
-  
+
   # run a search with custom filters and default attributes.
   response = uniprot.search({
     'filters': {
@@ -80,7 +84,7 @@ Interact with the biomart server
     }
   }, header = 1 )
   
-  # run a search with custom filters and attributes
+  # run a search with custom filters and attributes (no header)
   response = uniprot.search({
     'filters': {
         'accession': ['Q9FMA1', 'Q8LFJ9']

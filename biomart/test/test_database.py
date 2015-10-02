@@ -1,15 +1,16 @@
 import os
 import unittest
+from pprint import pprint
 
 import biomart
 from biomart.lib import PUBLIC_BIOMART_URL
 
 class BiomartDatabaseTestCase(unittest.TestCase):
     def setUp(self):
-        self.database = biomart.BiomartDatabase( url = PUBLIC_BIOMART_URL, name = 'unimart' )
+        self.database = biomart.BiomartDatabase(PUBLIC_BIOMART_URL, name = 'unimart', verbose=True)
     
     def testCanConnectToDatabase(self):
-        self.assertTrue( self.database.is_alive )
+        self.assertTrue( self.database.server.is_alive )
     
     def testCanFetchDatasets(self):
         self.database.fetch_datasets()
@@ -17,14 +18,13 @@ class BiomartDatabaseTestCase(unittest.TestCase):
     
     def testCanSelectDataset(self):
         uniprot = self.database.datasets['uniprot']
-        self.assertTrue( uniprot.is_alive )
-    
+        self.assertTrue(uniprot.count() > 0)
 
 def suite():
     loader = unittest.TestLoader()
-    suite = unittest.TestSuite()
-    suite.addTest(loader.loadTestsFromTestCase(BiomartDatabaseTestCase))
-    return suite
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(loader.loadTestsFromTestCase(BiomartDatabaseTestCase))
+    return test_suite
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
