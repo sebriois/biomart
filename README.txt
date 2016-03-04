@@ -28,7 +28,7 @@ Import Biomart module
 Connect to a Biomart Server
 ::
   
-  server = BiomartServer( "http://www.biomart.org/biomart" )
+  server = BiomartServer( "http://www.ensembl.org/biomart" )
   
   # if you are behind a proxy
   import os
