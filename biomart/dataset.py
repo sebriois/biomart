@@ -110,7 +110,8 @@ class BiomartDataset(object):
             dataset_filter = self.filters.get(filter_name, None)
 
             if not dataset_filter:
-                self.show_filters()
+                if self.verbose:
+                    self.show_filters()
                 raise biomart.BiomartException("The filter '%s' does not exist." % filter_name)
 
             if len(dataset_filter.accepted_values) > 0 and filter_value not in dataset_filter.accepted_values:
@@ -130,12 +131,14 @@ class BiomartDataset(object):
 
             for attribute_name in attributes:
                 if attribute_name not in self.attributes.keys():
-                    self.show_attributes()
+                    if self.verbose:
+                        self.show_attributes()
                     raise biomart.BiomartException("The attribute '%s' does not exist." % attribute_name)
 
             # selected attributes must belong to the same attribute page.
             if len(set([self.attributes[a].attribute_page for a in attributes])) > 1:
-                self.show_attributes()
+                if self.verbose:
+                        self.show_attributes()
                 raise biomart.BiomartException("You must use attributes that belong to the same attribute page.")
 
         # filters and attributes looks ok, start building the XML query
