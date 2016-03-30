@@ -83,6 +83,24 @@ class BiomartDataset(object):
                     filter_type = line[5],
                 )
 
+
+        # retrieve additional filters from the dataset configuration page
+        r = self.server.get_request(type="configuration", dataset=self.name)
+        xml = fromstring(r.text)
+
+        for attribute_page in xml.findall('./AttributePage'):
+
+            for attribute in attribute_page.findall('./*/*/AttributeDescription[@pointerFilter]'):
+                name = attribute.get('pointerFilter')
+
+                if not name in self._filters:
+                    self._filters[name] = biomart.BiomartFilter(
+                        name = name,
+                        display_name = attribute.get('displayName') or name,
+                        accepted_values = '',
+                        filter_type = '',
+                    )
+
     def fetch_attributes(self):
         if self.verbose:
             print("[BiomartDataset:'%s'] Fetching attributes" % self.name)
