@@ -40,7 +40,10 @@ class BiomartDataset(object):
         """
         if not self._attribute_pages:
             self.fetch_attributes()
-        return {x:y for x, y in [page.attributes for page in self._attribute_pages.values()]}
+        result = {}
+        for page in self._attribute_pages.values():
+            result.update(page.attributes)
+        return result
 
 
     @property
@@ -66,6 +69,9 @@ class BiomartDataset(object):
 
     def show_attributes(self):
         pprint.pprint(self.attributes)
+
+    def show_attributes_by_page(self):
+        pprint.pprint(self.attribute_pages)
 
     def fetch_filters(self):
         if self.verbose:

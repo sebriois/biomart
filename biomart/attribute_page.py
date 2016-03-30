@@ -10,4 +10,4 @@ class BiomartAttributePage(object):
         self.attributes[attribute.name] = attribute
 
     def __repr__(self):
-        return "'%s' (# of attributes: %d, defaults: %s)" % (self.display_name, len(self.attributes), repr(self.default_attributes))
+        return "'%s': (attributes: %s, defaults: %s)" % (self.display_name, self.attributes, repr(self.default_attributes))
