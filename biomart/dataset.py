@@ -25,16 +25,38 @@ class BiomartDataset(object):
         self.database = kwargs.get('database', None)
 
         self._filters = {}
-        self._attributes = {}
+        self._attribute_pages = {}
 
     def __repr__(self):
         return self.display_name
 
     @property
     def attributes(self):
-        if not self._attributes:
+        """
+        A dictionary mapping names of attributes to BiomartAttribute instances.
+
+        This causes overwriting errors if there are diffferent pages which use
+        the same attribute names, but is kept for backward compatibility.
+        """
+        if not self._attribute_pages:
             self.fetch_attributes()
-        return self._attributes
+        result = {}
+        for page in self._attribute_pages.values():
+            result.update(page.attributes)
+        return result
+
+
+    @property
+    def attribute_pages(self):
+        """
+        A dictionary mapping pages of attributes to BiomartAttributePage instances.
+        Lists of attributes for particular pages can be accessed by 'attributes'
+        field of pages instances.
+        """
+        if not self._attribute_pages:
+            self.fetch_attributes()
+        return self._attribute_pages
+
 
     @property
     def filters(self):
@@ -47,6 +69,9 @@ class BiomartDataset(object):
 
     def show_attributes(self):
         pprint.pprint(self.attributes)
+
+    def show_attributes_by_page(self):
+        pprint.pprint(self.attribute_pages)
 
     def fetch_filters(self):
         if self.verbose:
@@ -64,21 +89,44 @@ class BiomartDataset(object):
                     filter_type = line[5],
                 )
 
+
+        # retrieve additional filters from the dataset configuration page
+        r = self.server.get_request(type="configuration", dataset=self.name)
+        xml = fromstring(r.text)
+
+        for attribute_page in xml.findall('./AttributePage'):
+
+            for attribute in attribute_page.findall('./*/*/AttributeDescription[@pointerFilter]'):
+                name = attribute.get('pointerFilter')
+
+                if not name in self._filters:
+                    self._filters[name] = biomart.BiomartFilter(
+                        name = name,
+                        display_name = attribute.get('displayName') or name,
+                        accepted_values = '',
+                        filter_type = '',
+                    )
+
     def fetch_attributes(self):
         if self.verbose:
             print("[BiomartDataset:'%s'] Fetching attributes" % self.name)
 
         # retrieve default attributes from the dataset configuration page
-        # only retrieve default attributes from the first page since we
-        # cannot use attributes declared under different <AttributePage>s
         r = self.server.get_request(type="configuration", dataset=self.name)
         xml = fromstring(r.text)
-        default_attributes = []
+
         for attribute_page in xml.findall('./AttributePage'):
+
+            name = attribute_page.get('internalName')
+            display_name = attribute_page.get('displayName')
+
+            default_attributes = []
+
             for attribute in attribute_page.findall('./*/*/AttributeDescription[@default="true"]'):
                 default_attributes.append(attribute.get('internalName'))
-            if len(default_attributes) > 0:
-                break
+
+            self._attribute_pages[name] = biomart.BiomartAttributePage(name, display_name, default_attributes=default_attributes)
+
 
         # grab attribute details
         r = self.server.get_request(type="attributes", dataset=self.name)
@@ -86,12 +134,16 @@ class BiomartDataset(object):
             line = line.decode('utf8')
             if line:
                 line = line.split("\t")
-                self._attributes[line[0]] = biomart.BiomartAttribute(
-                    name = line[0],
-                    display_name = line[1],
-                    attribute_page = line[3],
-                    is_default = line[0] in default_attributes
-                )
+                page = line[3]
+                name = line[0]
+
+                if page not in self._attribute_pages:
+                    self._attribute_pages[page] = biomart.BiomartAttributePage(page)
+                    if self.verbose:
+                        print("[BiomartDataset:'%s'] Warning: attribute page ''%s' is not specified in server's configuration" % (self.name, page))
+
+                attribute = biomart.BiomartAttribute(name=name, display_name=line[1])
+                self._attribute_pages[page].add(attribute)
 
     def search(self, params = {}, header = 0, count = False):
         if not isinstance(params, dict):
@@ -110,7 +162,8 @@ class BiomartDataset(object):
             dataset_filter = self.filters.get(filter_name, None)
 
             if not dataset_filter:
-                self.show_filters()
+                if self.verbose:
+                    self.show_filters()
                 raise biomart.BiomartException("The filter '%s' does not exist." % filter_name)
 
             if len(dataset_filter.accepted_values) > 0 and filter_value not in dataset_filter.accepted_values:
@@ -120,22 +173,44 @@ class BiomartDataset(object):
 
         # check attributes unless we're only counting
         if not count:
+
+            # discover attributes and pages
+            self.fetch_attributes()
+
             # no attributes given, use default attributes
             if not attributes:
-                attributes = [a.name for a in self.attributes.values() if a.is_default]
+                # get first page
+                page = self._attribute_pages.keys()[0]  # TODO exception if doesn't exists
+
+                attributes = [a.name for a in self._attribute_pages[page].attributes.values() if a.is_default]
 
             # if no default attributes have been defined, raise an exception
             if not attributes:
                 raise biomart.BiomartException("at least one attribute is required, none given")
 
             for attribute_name in attributes:
-                if attribute_name not in self.attributes.keys():
-                    self.show_attributes()
+                found = False
+                for page in self._attribute_pages.values():
+                    if attribute_name in page.attributes.keys():
+                        found = True
+                        break
+                if not found:
+                    if self.verbose:
+                        self.show_attributes()
                     raise biomart.BiomartException("The attribute '%s' does not exist." % attribute_name)
 
-            # selected attributes must belong to the same attribute page.
-            if len(set([self.attributes[a].attribute_page for a in attributes])) > 1:
-                self.show_attributes()
+            # guess the attribute page and check if all attributes belong to it.
+            guessed_page = None
+
+            for tested_page in self._attribute_pages.values():
+                if set(attributes).issubset(tested_page.attributes.keys()):
+                    guessed_page = tested_page
+                    break
+
+            if guessed_page is None:
+                # selected attributes must belong to the same attribute page.
+                if self.verbose:
+                    self.show_attributes()
                 raise biomart.BiomartException("You must use attributes that belong to the same attribute page.")
 
         # filters and attributes looks ok, start building the XML query
