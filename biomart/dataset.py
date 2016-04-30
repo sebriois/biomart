@@ -166,10 +166,19 @@ class BiomartDataset(object):
                     self.show_filters()
                 raise biomart.BiomartException("The filter '%s' does not exist." % filter_name)
 
-            if len(dataset_filter.accepted_values) > 0 and filter_value not in dataset_filter.accepted_values:
-                error_msg = "The value '%s' for filter '%s' cannot be used." % (filter_value, filter_name)
-                error_msg += " Use one of: [%s]" % ", ".join(map(str, dataset_filter.accepted_values))
-                raise biomart.BiomartException(error_msg)
+            accepted_values = dataset_filter.accepted_values
+            if len(accepted_values) > 0:
+                incorrect_value = None
+
+                if (isinstance(filter_value, list) or isinstance(filter_value, tuple)) and dataset_filter.filter_type == 'list':
+                    incorrect_value = filter(lambda v: v not in accepted_values, filter_value)
+                elif filter_value not in accepted_values:
+                    incorrect_value = filter_value
+
+                if incorrect_value:
+                    error_msg = "the value(s) '%s' for filter '%s' cannot be used." % (incorrect_value, filter_name)
+                    error_msg += " Use values from: [%s]" % ", ".join(map(str, accepted_values))
+                    raise biomart.BiomartException(error_msg)
 
         # check attributes unless we're only counting
         if not count:
