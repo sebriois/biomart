@@ -145,7 +145,7 @@ class BiomartDataset(object):
                 attribute = biomart.BiomartAttribute(name=name, display_name=line[1])
                 self._attribute_pages[page].add(attribute)
 
-    def search(self, params = {}, header = 0, count = False):
+    def search(self, params={}, header=0, count=False, formatter='TSV'):
         if not isinstance(params, dict):
             raise biomart.BiomartException("'params' argument must be a dict")
 
@@ -226,7 +226,7 @@ class BiomartDataset(object):
         root = Element('Query')
         root.attrib.update({
             'virtualSchemaName': 'default',  # TODO: use database virtualSchemaName instead (if any error)
-            'formatter': 'TSV',
+            'formatter': formatter,
             'header': str(header),
             'uniqueRows': '1',
             'datasetConfigVersion': '0.6',
