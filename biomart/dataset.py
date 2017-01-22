@@ -115,7 +115,7 @@ class BiomartDataset(object):
         r = self.server.get_request(type="configuration", dataset=self.name)
         xml = fromstring(r.text)
 
-        for attribute_page in xml.findall('./AttributePage'):
+        for idx, attribute_page in enumerate(xml.findall('./AttributePage')):
 
             name = attribute_page.get('internalName')
             display_name = attribute_page.get('displayName')
@@ -125,7 +125,12 @@ class BiomartDataset(object):
             for attribute in attribute_page.findall('./*/*/AttributeDescription[@default="true"]'):
                 default_attributes.append(attribute.get('internalName'))
 
-            self._attribute_pages[name] = biomart.BiomartAttributePage(name, display_name, default_attributes=default_attributes)
+            self._attribute_pages[name] = biomart.BiomartAttributePage(
+                name,
+                display_name = display_name,
+                default_attributes = default_attributes,
+                is_default = (idx == 0)  # first attribute page fetched is considered default
+            )
 
         # grab attribute details
         r = self.server.get_request(type="attributes", dataset=self.name)
@@ -177,11 +182,16 @@ class BiomartDataset(object):
             self.fetch_attributes()
 
             # no attributes given, use default attributes
-            if not attributes:
-                # get first page
-                page = list(self._attribute_pages.keys())[0]  # TODO exception if doesn't exists
+            if not attributes and self._attribute_pages:
+                # get default attribute page
+                page = next(filter(lambda attr_page: attr_page.is_default, self._attribute_pages.values()))
                 
-                attributes = [a.name for a in self._attribute_pages[page].attributes.values() if a.is_default]
+                # get default attributes from page
+                attributes = [a.name for a in page.attributes.values() if a.is_default]
+
+                # there is no default attributes, get all attributes from page
+                if not attributes:
+                    attributes = [a.name for a in page.attributes.values()]
 
             # if no default attributes have been defined, raise an exception
             if not attributes:
