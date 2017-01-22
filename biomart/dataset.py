@@ -127,7 +127,6 @@ class BiomartDataset(object):
 
             self._attribute_pages[name] = biomart.BiomartAttributePage(name, display_name, default_attributes=default_attributes)
 
-
         # grab attribute details
         r = self.server.get_request(type="attributes", dataset=self.name)
         for line in r.iter_lines():
@@ -140,7 +139,7 @@ class BiomartDataset(object):
                 if page not in self._attribute_pages:
                     self._attribute_pages[page] = biomart.BiomartAttributePage(page)
                     if self.verbose:
-                        print("[BiomartDataset:'%s'] Warning: attribute page ''%s' is not specified in server's configuration" % (self.name, page))
+                        print("[BiomartDataset:'%s'] Warning: attribute page '%s' is not specified in server's configuration" % (self.name, page))
 
                 attribute = biomart.BiomartAttribute(name=name, display_name=line[1])
                 self._attribute_pages[page].add(attribute)
@@ -180,8 +179,8 @@ class BiomartDataset(object):
             # no attributes given, use default attributes
             if not attributes:
                 # get first page
-                page = self._attribute_pages.keys()[0]  # TODO exception if doesn't exists
-
+                page = list(self._attribute_pages.keys())[0]  # TODO exception if doesn't exists
+                
                 attributes = [a.name for a in self._attribute_pages[page].attributes.values() if a.is_default]
 
             # if no default attributes have been defined, raise an exception
@@ -212,11 +211,10 @@ class BiomartDataset(object):
                 if self.verbose:
                     self.show_attributes()
                 raise biomart.BiomartException("You must use attributes that belong to the same attribute page.")
-
         # filters and attributes looks ok, start building the XML query
         root = Element('Query')
         root.attrib.update({
-            'virtualSchemaName': 'default',  # TODO: use database virtualSchemaName instead (if any error)
+            'virtualSchemaName': self.database.virtual_schema,
             'formatter': 'TSV',
             'header': str(header),
             'uniqueRows': '1',
