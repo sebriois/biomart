@@ -1,8 +1,10 @@
-=============
+
 Biomart 0.9.2
 =============
 
 Python API that consumes the biomart webservice.
+
+**!!!NOTE: this package is compatible with Python3 and higher versions.**
 
 What it will do:
 ----------------
@@ -20,53 +22,50 @@ What it won't do:
 Usage
 -----
 
-Import Biomart module
 <pre>
+# Import Biomart module
 from biomart import BiomartServer
-</pre>
-Connect to a Biomart Server
-<pre>
-server = BiomartServer( "http://www.biomart.org/biomart" )
-  
-# if you are behind a proxy
-import os
-server.http_proxy = os.environ.get('http_proxy', 'http://my_http_proxy.org')
 
-# set verbose to True to get some messages
+# Connect to biomart server
+server = BiomartServer( "http://www.ensembl.org/biomart" )
 server.verbose = True
-</pre>
 
-Interact with the biomart server
-<pre>
-# show server databases
-server.show_databases() # uses pprint behind the scenes
+# Check available databases
+server.show_databases()
 
-# show server datasets
-server.show_datasets() # uses pprint behind the scenes
+# Select a database
+db = server.databases['ENSEMBL_MART_ENSEMBL']
 
-# use the 'uniprot' dataset
-uniprot = server.datasets['uniprot']
+# Check available datasets (species)
+db.show_datasets()
 
-# show all available filters and attributes of the 'uniprot' dataset
-uniprot.show_filters()  # uses pprint
-uniprot.show_attributes()  # uses pprint
-</pre>
+# Select a dataset
+ds = db.datasets['hsapiens_gene_ensembl']
 
-Run a search
-<pre>
-# run a search with the default attributes - equivalent to hitting "Results" on the web interface.
-# this will return a lot of data.
-response = uniprot.search()
-response = uniprot.search( header = 1 ) # if you need the columns header
+# Show all available filters and attributes
+# for the selected dataset
+ds.show_filters()
+ds.show_attributes()
 
-# response format is TSV
+# Run a search with the default attributes
+# It is equivalent to hitting "Results" on the web interface.
+# This will return a lot of data.
+response = ds.search()
+
+# If you need the columns header
+response = ds.search( header = 1 )
+
+# Response format is TSV
 for line in response.iter_lines():
-line = line.decode('utf-8')
-print(line.split("\t"))
+    line = line.decode('utf-8')
+    print(line.split("\t"))
 
-# run a count - equivalent to hitting "Count" on the web interface
-response = uniprot.count()
-print(response.text)
+# Run a count
+# It is equivalent to hitting "Count" on the web interface
+response = ds.count()
+print(response)
+
+## OLD EXAMPLE BELOW
 
 # run a search with custom filters and default attributes.
 response = uniprot.search({
