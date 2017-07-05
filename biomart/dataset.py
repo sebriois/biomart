@@ -273,7 +273,7 @@ class BiomartDataset(object):
         if self.verbose:
             print("[BiomartDataset] search query:\n%s" % tostring(root))
 
-        return self.server.get_request(query = tostring(root))
+        return self.server.post_query(query = tostring(root))
 
     def count(self, params = {}):
         r = self.search(params, count = True)

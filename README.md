@@ -1,8 +1,10 @@
-=============
-Biomart 0.9.2
+
+Biomart 1.0.0
 =============
 
 Python API that consumes the biomart webservice.
+
+**!!!NOTE: this package is compatible with Python3 and higher versions.**
 
 What it will do:
 ----------------
@@ -20,87 +22,95 @@ What it won't do:
 Usage
 -----
 
-Import Biomart module
-<pre>
+```python
+
+# Import Biomart module
 from biomart import BiomartServer
-</pre>
-Connect to a Biomart Server
-<pre>
-server = BiomartServer( "http://www.biomart.org/biomart" )
-  
-# if you are behind a proxy
-import os
-server.http_proxy = os.environ.get('http_proxy', 'http://my_http_proxy.org')
 
-# set verbose to True to get some messages
+# Connect to biomart server
+server = BiomartServer( "http://www.ensembl.org/biomart" )
 server.verbose = True
-</pre>
 
-Interact with the biomart server
-<pre>
-# show server databases
-server.show_databases() # uses pprint behind the scenes
+# Check available databases
+server.show_databases()
 
-# show server datasets
-server.show_datasets() # uses pprint behind the scenes
+# Select a database
+db = server.databases['ENSEMBL_MART_ENSEMBL']
 
-# use the 'uniprot' dataset
-uniprot = server.datasets['uniprot']
+# Check available datasets (species)
+db.show_datasets()
 
-# show all available filters and attributes of the 'uniprot' dataset
-uniprot.show_filters()  # uses pprint
-uniprot.show_attributes()  # uses pprint
-</pre>
+# Select a dataset
+ds = db.datasets['hsapiens_gene_ensembl']
 
-Run a search
-<pre>
-# run a search with the default attributes - equivalent to hitting "Results" on the web interface.
-# this will return a lot of data.
-response = uniprot.search()
-response = uniprot.search( header = 1 ) # if you need the columns header
+# Show all available filters and attributes
+# for the selected dataset
+ds.show_filters()
+ds.show_attributes()
 
-# response format is TSV
+# Run a search with the default attributes
+# It is equivalent to hitting "Results" on the web interface.
+# This will return a lot of data.
+#response = ds.search()
+
+# If you need the columns header
+#response = ds.search( header = 1 )
+
+# Response format is TSV
 for line in response.iter_lines():
-line = line.decode('utf-8')
-print(line.split("\t"))
+    line = line.decode('utf-8')
+    print(line.split("\t"))
 
-# run a count - equivalent to hitting "Count" on the web interface
-response = uniprot.count()
-print(response.text)
+# Run a count
+# It is equivalent to hitting "Count" on the web interface
+response = ds.count()
+print(response)
 
 # run a search with custom filters and default attributes.
-response = uniprot.search({
-'filters': {
-    'accession': 'Q9FMA1'
-}
-}, header = 1 )
+response = ds.search({
+    'filters':{
+        'ensembl_gene_id':'ENSG00000132646'
+    }
+}, header = 1)
 
-response = uniprot.search({
-'filters': {
-    'accession': ['Q9FMA1', 'Q8LFJ9']  # ID-list specified accessions
-}
-}, header = 1 )
+response = ds.search({
+    'filters':{
+        'ensembl_gene_id':['ENSG00000132646', 'ENSG00000141510']
+    }
+}, header = 1)
 
 # run a search with custom filters and attributes (no header)
-response = uniprot.search({
-'filters': {
-    'accession': ['Q9FMA1', 'Q8LFJ9']
-},
-'attributes': [
-    'accession', 'protein_name'
-]
-})
-</pre>
+response = ds.search({
+    'filters':{
+        'ensembl_gene_id':['ENSG00000132646', 'ENSG00000141510']
+    },
+    'attributes':[
+        'ensembl_gene_id',              # Gene ID
+        'chromosome_name',              # Chromosome
+        'start_position',               # Start
+        'end_position',                 # End
+        'strand',                       # Strand
+        'transcript_count',             # Number of transcripts
+        'percentage_gene_gc_content'    # GC content percentage
+    ]
+}, header = 1)
 
-Shortcut function: connect directly to a biomart dataset
-*This is short in code but it might be long in time since the module needs to fetch all server's databases to find your dataset.*
-<pre>
-from biomart import BiomartDataset
+# To convert the response variable to a more readable format
+# let's take advantage of the numpy and pandas libraries
+import numpy as np
+import pandas as pd
 
-interpro = BiomartDataset( "http://www.biomart.org/biomart", name = 'entry' )
+# Convert to easily accessible numpy array
+response = np.array([row.split('\t')
+    for row in response.text.strip().split('\n')])
 
-response = interpro.search({
-'filters': { 'entry_id': 'IPR027603' },
-'attributes': [ 'entry_name', 'abstract' ]
-})
-</pre>
+# Convert to easy-to-read pandas dataframe
+# With header line
+response = pd.DataFrame(response[1:,:], columns = response[0])
+# Without header line
+response = pd.DataFrame(response)
+
+print(response)
+
+```
+
