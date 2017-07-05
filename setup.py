@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='biomart',
-    version='0.9.2',
+    version='1.0.0',
     url='https://github.com/sebriois/biomart',
     author='Sebastien Briois',
     author_email='sebriois@gmail.com',

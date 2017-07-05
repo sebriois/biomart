@@ -1,5 +1,5 @@
 =============
-Biomart 0.9.2
+Biomart 1.0.0
 =============
 
 Python API that consumes the biomart webservice.
