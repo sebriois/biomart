@@ -22,7 +22,7 @@ What it won't do:
 Usage
 -----
 
-<pre>
+```python
 # Import Biomart module
 from biomart import BiomartServer
 
@@ -65,41 +65,33 @@ for line in response.iter_lines():
 response = ds.count()
 print(response)
 
-## OLD EXAMPLE BELOW
-
 # run a search with custom filters and default attributes.
-response = uniprot.search({
-'filters': {
-    'accession': 'Q9FMA1'
-}
-}, header = 1 )
+response = ds.search({
+    'filters':{
+        'ensembl_gene_id':'ENSG00000132646'
+    }
+}, header = 1)
 
-response = uniprot.search({
-'filters': {
-    'accession': ['Q9FMA1', 'Q8LFJ9']  # ID-list specified accessions
-}
-}, header = 1 )
+response = ds.search({
+    'filters':{
+        'ensembl_gene_id':['ENSG00000132646', 'ENSG00000141510']
+    }
+}, header = 1)
 
 # run a search with custom filters and attributes (no header)
-response = uniprot.search({
-'filters': {
-    'accession': ['Q9FMA1', 'Q8LFJ9']
-},
-'attributes': [
-    'accession', 'protein_name'
-]
-})
-</pre>
+response = ds.search({
+    'filters':{
+        'ensembl_gene_id':['ENSG00000132646', 'ENSG00000141510']
+    },
+    'attributes':[
+        'ensembl_gene_id',              # Gene ID
+        'chromosome_name',              # Chromosome
+        'start_position',               # Start
+        'end_position',                 # End
+        'strand',                       # Strand
+        'transcript_count',             # Number of transcripts
+        'percentage_gene_gc_content'    # GC content percentage
+    ]
+}, header = 1)
+```
 
-Shortcut function: connect directly to a biomart dataset
-*This is short in code but it might be long in time since the module needs to fetch all server's databases to find your dataset.*
-<pre>
-from biomart import BiomartDataset
-
-interpro = BiomartDataset( "http://www.biomart.org/biomart", name = 'entry' )
-
-response = interpro.search({
-'filters': { 'entry_id': 'IPR027603' },
-'attributes': [ 'entry_name', 'abstract' ]
-})
-</pre>
