@@ -23,6 +23,7 @@ Usage
 -----
 
 ```python
+
 # Import Biomart module
 from biomart import BiomartServer
 
@@ -50,10 +51,10 @@ ds.show_attributes()
 # Run a search with the default attributes
 # It is equivalent to hitting "Results" on the web interface.
 # This will return a lot of data.
-response = ds.search()
+#response = ds.search()
 
 # If you need the columns header
-response = ds.search( header = 1 )
+#response = ds.search( header = 1 )
 
 # Response format is TSV
 for line in response.iter_lines():
@@ -93,5 +94,23 @@ response = ds.search({
         'percentage_gene_gc_content'    # GC content percentage
     ]
 }, header = 1)
+
+# To convert the response variable to a more readable format
+# let's take advantage of the numpy and pandas libraries
+import numpy as np
+import pandas as pd
+
+# Convert to easily accessible numpy array
+response = np.array([row.split('\t')
+    for row in response.text.strip().split('\n')])
+
+# Convert to easy-to-read pandas dataframe
+# With header line
+response = pd.DataFrame(response[1:,:], columns = response[0])
+# Without header line
+response = pd.DataFrame(response)
+
+print(response)
+
 ```
 
