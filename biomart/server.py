@@ -104,3 +104,16 @@ class BiomartServer(object):
         r.raise_for_status()
 
         return r
+
+    def post_query(self, query, **params):
+        proxies = {
+            'http': self.http_proxy,
+            'https': self.https_proxy
+        }
+        if params:
+            r = requests.post(self.url, data = {'query' : query}, params = params, proxies = proxies, stream = True)
+        else:
+            r = requests.post(self.url, data = {'query' : query}, proxies = proxies)
+        r.raise_for_status()
+
+        return r
