@@ -26,7 +26,7 @@ from biomart import BiomartServer
 </pre>
 Connect to a Biomart Server
 <pre>
-server = BiomartServer( "http://www.biomart.org/biomart" )
+server = BiomartServer( "http://uswest.ensembl.org/biomart" )
   
 # if you are behind a proxy
 import os
