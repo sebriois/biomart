@@ -233,7 +233,7 @@ class BiomartDataset(object):
         # filters and attributes looks ok, start building the XML query
         root = Element('Query')
         root.attrib.update({
-            'virtualSchemaName': self.database.virtual_schema,
+            'virtualSchemaName': self.database.virtual_schema if self.database else 'default',
             'formatter': 'TSV',
             'header': str(header),
             'uniqueRows': '1',
