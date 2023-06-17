@@ -254,7 +254,7 @@ class BiomartDataset(object):
             filter_elem = SubElement(dataset, "Filter")
             filter_elem.set('name', filter_name)
 
-            if 'boolean_list' == dataset_filter.filter_type:
+            if dataset_filter.filter_type in ['boolean', 'boolean_list']:
                 if filter_value is True or filter_value.lower() in ('included', 'only'):
                     filter_elem.set('excluded', '0')
                 elif filter_value is False or filter_value.lower() == 'excluded':
